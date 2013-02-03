@@ -1,0 +1,31 @@
+#!/bin/sh
+#PBS -l nodes=1:ppn=4
+
+########### UPDATE THESE VARIABLES ###############
+# the directory where your files are
+pa4_home=/home/$USER/pa4/
+##################################################
+
+########## DO NOT MODIFY THIS PORTION ############
+### UNLESS YOU REALLY KNOW WHAT YOU ARE DOING  ###
+# The following commands run on compute nodes
+# It copies file from server node to compute node
+mkdir -p $pa4_home
+cd $pa4_home
+rm -rf *
+scp -r $USER@ip-10-177-22-28:$pa4_home/* .
+export OMP_NUM_THREADS=4
+##################################################
+
+cd $pa4_home
+echo $USER
+echo $pa4_home
+######### ADD YOUR EXECUTION SCRIPT HERE #########
+# Clean up the directory
+make clean
+# Compile the program
+make
+# Run the program
+./ImageCleaner images/noisy_01.nsy 1
+./ImageCleaner images/noisy_02.nsy 1
+./ImageCleaner images/noisy_03.nsy 1
