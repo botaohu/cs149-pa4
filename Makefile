@@ -1,17 +1,18 @@
-
-# Comment out the following line to generate release code
-DEBUG = 1
+DEBUG ?= 1
 
 SOURCES = main.cc JPEGWriter.cc CpuReference.cc ImageCleaner.cc
+LIBS = -ljpeg
 
-ifdef DEBUG
-GCCFLAGS    += -g
+ifeq ($(DEBUG),1)
+CFLAGS += -g -fopenmp
 else
-GCCFLAGS    +=
+CFLAGS += -fopenmp
 endif
 
+.PHONY: all
 all:
-	g++ -ljpeg -fopenmp -o ImageCleaner $(SOURCES) $(GCCFLAGS)
+	g++ $(CFLAGS) -o ImageCleaner $(SOURCES) $(LIBS)
 
+.PHONY: clean
 clean:
-	rm -f *~ *.o ImageCleaner
+	rm -f *.o ImageCleaner

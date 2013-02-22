@@ -33,8 +33,6 @@ int main(int argc, char **argv)
   // Allocate space for the real and imaginary components of the image
   float *real_image = new float[size_x * size_y];
   float *imag_image = new float[size_x * size_y];
-  float *tmp_real_image = new float[size_x * size_y];
-  float *tmp_imag_image = new float[size_x * size_y];
   // Also allocate space for the reference implementation
   float *real_image_ref = new float[size_x * size_y];
   float *imag_image_ref = new float[size_x * size_y];
@@ -63,7 +61,7 @@ int main(int argc, char **argv)
   if (runRef)
     referenceTime = referenceCleaner(real_image_ref, imag_image_ref, size_x, size_y);
 
-	float time = imageCleaner(real_image, imag_image, tmp_real_image, tmp_imag_image, size_x, size_y);
+	float time = imageCleaner(real_image, imag_image, size_x, size_y);
 
   if (runRef)
 	printf("Speedup: %f\n", referenceTime / time);
@@ -86,9 +84,6 @@ int main(int argc, char **argv)
   delete [] imag_image;
   delete [] real_image_ref;
   delete [] imag_image_ref; 
-  delete [] tmp_real_image;
-  delete [] tmp_imag_image;
-
 
   return 0; 
 }
