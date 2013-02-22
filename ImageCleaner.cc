@@ -126,6 +126,7 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
       memset(imag_image + x * size, 0, sizeof(float) * size);
     }
   }
+
   /*
   //#pragma omp parallel for schedule(dynamic,chunk) private(x) shared(real_image,imag_image,size,eight,eight7,filtered_size)
   for (x = 0; x < eight; x++) {
