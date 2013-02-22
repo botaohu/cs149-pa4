@@ -3,6 +3,7 @@
 #include <sys/time.h>
 #include <stdio.h>
 #include <algorithm>
+#include <cstring>
 using namespace std;
 
 const float PI = acos(-1.0);
