@@ -4,8 +4,44 @@ Botao Hu (botaohu@stanford.edu)
 
 [Optimization]
 
-1. Parallelized for by OpenMP
-
-
-2. Implement fast fourier transformation
+1. Implement 1D fast fourier transformation
 Instead of using the original O(n^2) fourier transformation, we implement the fast fourier transformation of O(n log n), which significantly improves the performance. 
+
+void fft(float *real_image, float *imag_image, int n, int step, int isign = 1) 
+
+The input with an array [real_image, imag_image] of size [n] and the step in the array is [step].
+[isign] represents the direction of fourier transformation. [isign] = -1 means the inverse fourier transformation. 
+
+Reference:
+Fast Fourier transform program, four1, from "Numerical Recipes in C" (Cambridge
+Univ. Press) by W.H. Press, S.A. Teukolsky, W.T. Vetterling, and B.P. Flannery
+
+2. Parallelized for by OpenMP
+In order to compute 2D FFT, we first do row-wise transform and then do column-wise transform. 
+For row-wise transform, we enumerate the row and input that row into 1D FFT. 
+The calcuation of rows are mutually independent and can be computed separately and parallelly.
+Thus, we added OpenMP "dynamic parallelized for" operation at the loop of the enumeration of rows.
+"dynamic" helps to balance the work load between threads. 
+It's the similar case for column-wise transforamtion. 
+
+[Performance]
+
+noisy_01:
+Reference Kernel Execution Time: 96182.062500 ms
+Optimized Kernel Execution Time: 42.158001 ms
+Speedup: 2281.466309
+
+noisy_02:
+Reference Kernel Execution Time: 96302.945312 ms
+Optimized Kernel Execution Time: 55.583000 ms
+Speedup: 1732.597168
+
+noisy_03:
+Reference Kernel Execution Time: 96302.945312 ms
+Optimized Kernel Execution Time: 55.583000 ms
+Speedup: 1732.597168
+
+[Correctness]
+The result of CpuReference and our method are visually identical.
+The difference between the results are acceptable due to the error of the numerical calcuation. 
+
