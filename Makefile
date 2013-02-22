@@ -11,7 +11,7 @@ endif
 
 .PHONY: all
 all:
-	g++ $(CFLAGS) -o ImageCleaner $(SOURCES) $(LIBS)
+	g++ -O3 $(CFLAGS) -o ImageCleaner $(SOURCES) $(LIBS)
 
 .PHONY: clean
 clean:
