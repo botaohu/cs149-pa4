@@ -1,0 +1,17 @@
+rm -f *.o ImageCleaner
+g++ -fopenmp -o ImageCleaner main.cc JPEGWriter.cc CpuReference.cc ImageCleaner.cc -ljpeg
+OPTIMIZED IMPLEMENTATION STATISTICS:
+  Optimized Kernel Execution Time: 52.837002 ms
+
+Writing out OpenMP generated image to images/noisy_01_out.jpg
+
+OPTIMIZED IMPLEMENTATION STATISTICS:
+  Optimized Kernel Execution Time: 42.153000 ms
+
+Writing out OpenMP generated image to images/noisy_02_out.jpg
+
+OPTIMIZED IMPLEMENTATION STATISTICS:
+  Optimized Kernel Execution Time: 201.968002 ms
+
+Writing out OpenMP generated image to images/noisy_03_out.jpg
+
