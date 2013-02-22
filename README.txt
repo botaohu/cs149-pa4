@@ -27,19 +27,19 @@ It's the similar case for column-wise transforamtion.
 [Performance]
 
 noisy_01:
-Reference Kernel Execution Time: 96182.062500 ms
-Optimized Kernel Execution Time: 42.158001 ms
-Speedup: 2281.466309
+Reference Kernel Execution Time: 96293.445312 ms
+Optimized Kernel Execution Time: 41.956001 ms
+Speedup: 2295.11
 
 noisy_02:
-Reference Kernel Execution Time: 96302.945312 ms
-Optimized Kernel Execution Time: 55.583000 ms
-Speedup: 1732.597168
+Reference Kernel Execution Time: 96401.265625 ms
+Optimized Kernel Execution Time: 42.112999 ms
+Speedup: 2289.11
 
 noisy_03:
-Reference Kernel Execution Time: 96302.945312 ms
-Optimized Kernel Execution Time: 55.583000 ms
-Speedup: 1732.597168
+Reference Kernel Execution Time: 785200.187500 ms
+Optimized Kernel Execution Time: 202.889008 ms
+Speedup: 3870.1
 
 [Correctness]
 The result of CpuReference and our method are visually identical.
