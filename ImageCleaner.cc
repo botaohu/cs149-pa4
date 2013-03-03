@@ -103,25 +103,26 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 
   size = size_x; 
   chunk = size / 8;
-  #pragma omp parallel for schedule(dynamic,chunk) private(x) shared(real_image,imag_image,size)
-  for (x = 0; x < size; x++) {
-    fft2(real_image + x * size, imag_image + x * size, size, 1);
-  }
-  #pragma omp parallel for schedule(dynamic,chunk) private(y) shared(real_image,imag_image,size)
-  for (y = 0; y < size; y++) {
-    fft2(real_image + y, imag_image + y, size, size);
-  }
-  
-  //Clear
   unsigned int eight = size_y / 8;
   unsigned int eight7 = size_y - eight;
   unsigned int filtered_size = eight7 - eight;
-  #pragma omp parallel for schedule(dynamic,chunk) private(x) shared(real_image,imag_image,size,eight,eight7,filtered_size)
+  #pragma omp parallel for schedule(dynamic,chunk) private(x) shared(real_image,imag_image,size)
+  for (x = 0; x < size; x++) {
+    fft2(real_image + x * size, imag_image + x * size, size, 1);
+    memset(real_image + x * size + eight, 0, sizeof(float) * filtered_size);
+    memset(imag_image + x * size + eight, 0, sizeof(float) * filtered_size);   
+  }
+  #pragma omp parallel for schedule(dynamic,chunk) private(y) shared(real_image,imag_image,size)
+  for (y = 0; y < eight * 2; y++) {
+    int iy = 
+    fft2(real_image +vy < eight ? y : y + eight7 - eight), imag_image + (y < eight ? y : y + eight7 - eight), size, size);
+  }
+  
+  //Clear
+ #pragma omp parallel for schedule(dynamic,chunk) private(x) shared(real_image,imag_image,size,eight,eight7,filtered_size)
   for (x = 0; x < size; x++) {
     if (x < eight || x >= eight7) {
-      memset(real_image + x * size + eight, 0, sizeof(float) * filtered_size);
-      memset(imag_image + x * size + eight, 0, sizeof(float) * filtered_size);
-    } else {
+   } else {
       memset(real_image + x * size, 0, sizeof(float) * size);
       memset(imag_image + x * size, 0, sizeof(float) * size);
     }
@@ -146,20 +147,16 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 
 
   #pragma omp parallel for schedule(dynamic,chunk) private(x, y) shared(real_image,imag_image,size)
-  for(x = 0; x < size; x++) {
-    fft2(real_image + x * size, imag_image + x * size, size, 1, -1);
-    for (y = 0; y < size; y++) {
-      *(real_image + x * size + y) /= size;
-      *(imag_image + x * size + y) /= size;
-    }
+  for(x = 0; x < eight * 2; x++) {
+    fft2(real_image + (x < eight ? x : x + eight7 - eight) * size, imag_image + (x < eight ? x : x + eight7 - eight) * size, size, 1, -1);
   }
 
   #pragma omp parallel for schedule(dynamic,chunk) private(x, y) shared(real_image,imag_image,size)
-  for(y = 0; y < size; y++) {
-    fft2(real_image + y, imag_image + y, size, size, -1);
+  for (y = 0; y < eight * 2; y++) {
+    fft2(real_image + (y < eight ? y : y + eight7), imag_image + (y < eight ? y : y + eight7), size, size, -1);
     for (x = 0; x < size; x++) {
-      *(real_image + y + x * size) /= size;
-      *(imag_image + y + x * size) /= size;
+      *(real_image + y + x * size) /= size * size;
+      *(imag_image + y + x * size) /= size * size;
     }
   }
 
