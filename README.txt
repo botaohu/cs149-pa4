@@ -19,10 +19,13 @@ Univ. Press) by W.H. Press, S.A. Teukolsky, W.T. Vetterling, and B.P. Flannery
 2. Parallelized for by OpenMP
 In order to compute 2D FFT, we first do row-wise transform and then do column-wise transform. 
 For row-wise transform, we enumerate the row and input that row into 1D FFT. 
-The calcuation of rows are mutually independent and can be computed separately and parallelly.
+The calculation of rows are mutually independent and can be computed separately and parallelly.
 Thus, we added OpenMP "dynamic parallelized for" operation at the loop of the enumeration of rows.
 "dynamic" helps to balance the work load between threads. 
-It's the similar case for column-wise transforamtion. 
+It's the similar case for column-wise transformation. 
+
+3. Prune 3/4 y-dimension calculation due to low-pass filter
+After calculating all 1-D FT of every rows, it is not necessary to compute FT of every columns, because low-pass filter will filter out the 3/4 of them. So we just compute FTs of the first 1/8 and last 1/8 columns. 
 
 [Performance]
 
@@ -43,5 +46,5 @@ Speedup: 3870.1
 
 [Correctness]
 The result of CpuReference and our method are visually identical.
-The difference between the results are acceptable due to the error of the numerical calcuation. 
+The difference between the results are acceptable due to the error of the numerical calcluation. 
 

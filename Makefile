@@ -3,10 +3,11 @@ DEBUG ?= 1
 SOURCES = main.cc JPEGWriter.cc CpuReference.cc ImageCleaner.cc
 LIBS = -ljpeg
 
+CFLAGS = -fopenmp
 ifeq ($(DEBUG),1)
-CFLAGS += -g -fopenmp
+CFLAGS += -g
 else
-CFLAGS += -fopenmp
+CFLAGS +=
 endif
 
 .PHONY: all

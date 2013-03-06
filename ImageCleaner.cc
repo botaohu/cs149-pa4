@@ -10,48 +10,7 @@ const float PI = acos(-1.0);
 
 #define SWAP(a,b) tempr=(a);(a)=(b);(b)=tempr
 
-
-void fft(float *real_image, float *imag_image, int size, int step, int isign = 1)
-{
-  // Create some space for storing temporary values
-  float *realOutBuffer = new float[size];
-  float *imagOutBuffer = new float[size];
-  // Local values
-  float *fft_real = new float[size];
-  float *fft_imag = new float[size];
-
-   for(unsigned int y = 0; y < size; y++)
-    {
-      // Compute the frequencies for this index
-      for(unsigned int n = 0; n < size; n++)
-      {
-        float term = -2 * PI * y * n / size * isign;
-        fft_real[n] = cos(term);
-        fft_imag[n] = sin(term);
-      }
-
-      // Compute the value for this index
-      realOutBuffer[y] = 0.0f;
-      imagOutBuffer[y] = 0.0f;
-      for(unsigned int n = 0; n < size; n++)
-      {
-         realOutBuffer[y] += (real_image[n * step] * fft_real[n]) - (imag_image[n* step] * fft_imag[n]);
-          imagOutBuffer[y] += (imag_image[n * step] * fft_real[n]) + (real_image[n * step] * fft_imag[n]);
-      }
-    }
-    // Write the buffer back to were the original values were
-    for(unsigned int y = 0; y < size; y++)
-    {
-      real_image[y * step] = realOutBuffer[y];
-      imag_image[y * step] = imagOutBuffer[y];
-    }
-    // Reclaim some memory
-  delete [] realOutBuffer;
-  delete [] imagOutBuffer;
-  delete [] fft_real;
-  delete [] fft_imag;
-}
-void fft2(float *real_image, float *imag_image, int n, int step, int isign = 1) {
+void fft(float *real_image, float *imag_image, int n, int step, int isign = 1) {
   real_image -= step;
   imag_image -= step;
   int mmax, m, j, istep, i, nstep, istep2;
@@ -89,7 +48,6 @@ void fft2(float *real_image, float *imag_image, int n, int step, int isign = 1) 
   }
 }
 
-
 float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 {
   // These are used for timing
@@ -103,63 +61,42 @@ float imageCleaner(float *real_image, float *imag_image, int size_x, int size_y)
 
   size = size_x; 
   chunk = size / 8;
-  #pragma omp parallel for schedule(dynamic,chunk) private(x) shared(real_image,imag_image,size)
-  for (x = 0; x < size; x++) {
-    fft2(real_image + x * size, imag_image + x * size, size, 1);
-  }
-  #pragma omp parallel for schedule(dynamic,chunk) private(y) shared(real_image,imag_image,size)
-  for (y = 0; y < size; y++) {
-    fft2(real_image + y, imag_image + y, size, size);
-  }
-  
-  //Clear
   unsigned int eight = size_y / 8;
   unsigned int eight7 = size_y - eight;
   unsigned int filtered_size = eight7 - eight;
-  #pragma omp parallel for schedule(dynamic,chunk) private(x) shared(real_image,imag_image,size,eight,eight7,filtered_size)
+
+  #pragma omp parallel for schedule(dynamic,chunk) private(x) shared(real_image,imag_image,size)
   for (x = 0; x < size; x++) {
-    if (x < eight || x >= eight7) {
-      memset(real_image + x * size + eight, 0, sizeof(float) * filtered_size);
-      memset(imag_image + x * size + eight, 0, sizeof(float) * filtered_size);
-    } else {
-      memset(real_image + x * size, 0, sizeof(float) * size);
-      memset(imag_image + x * size, 0, sizeof(float) * size);
+    fft(real_image + x * size, imag_image + x * size, size, 1);
+    memset(real_image + x * size + eight, 0, sizeof(float) * filtered_size);
+    memset(imag_image + x * size + eight, 0, sizeof(float) * filtered_size);   
+  }
+  #pragma omp parallel for schedule(dynamic,chunk) private(x, y) shared(real_image,imag_image,size)
+  for (y = 0; y < eight * 2; y++) {
+    int iy = y < eight ? y : y + eight7 - eight;
+    fft(real_image + iy, imag_image + iy, size, size);
+    //Clear
+    float *real_image_ptr  = real_image + eight * size + iy;
+    float *imag_image_ptr = imag_image + eight * size + iy;
+    for (x = 0; x < filtered_size; x++, real_image_ptr += size, imag_image_ptr += size) {
+      *real_image_ptr = 0, *imag_image_ptr = 0;
     }
   }
 
-  /*
-  //#pragma omp parallel for schedule(dynamic,chunk) private(x) shared(real_image,imag_image,size,eight,eight7,filtered_size)
-  for (x = 0; x < eight; x++) {
-      memset(real_image + x * size + eight, 0, sizeof(float) * filtered_size);
-      memset(imag_image + x * size + eight, 0, sizeof(float) * filtered_size);
+  #pragma omp parallel for schedule(dynamic,chunk) private(y) shared(real_image,imag_image,size)
+  for(y = 0; y < eight * 2; y++) {
+    int iy = y < eight ? y : y + eight7 - eight;
+    fft(real_image + iy, imag_image + iy, size, size, -1);
   }
-  for (x = eight7; x < size; x++) {
-      memset(real_image + x * size + eight, 0, sizeof(float) * filtered_size);
-      memset(imag_image + x * size + eight, 0, sizeof(float) * filtered_size);
-  }
-
-  memset(real_image + eight * size, 0, sizeof(float) * size * filtered_size);
-      memset(imag_image + eight * size, 0, sizeof(float) * size * filtered_size);
-    }
-  }
-  */
-
 
   #pragma omp parallel for schedule(dynamic,chunk) private(x, y) shared(real_image,imag_image,size)
   for(x = 0; x < size; x++) {
-    fft2(real_image + x * size, imag_image + x * size, size, 1, -1);
-    for (y = 0; y < size; y++) {
-      *(real_image + x * size + y) /= size;
-      *(imag_image + x * size + y) /= size;
-    }
-  }
-
-  #pragma omp parallel for schedule(dynamic,chunk) private(x, y) shared(real_image,imag_image,size)
-  for(y = 0; y < size; y++) {
-    fft2(real_image + y, imag_image + y, size, size, -1);
-    for (x = 0; x < size; x++) {
-      *(real_image + y + x * size) /= size;
-      *(imag_image + y + x * size) /= size;
+    float factor = size * size;
+    fft(real_image + x * size, imag_image + x * size, size, 1, -1);
+    float *real_image_ptr  = real_image + x * size;
+    float *imag_image_ptr = imag_image + x * size;
+    for (y = 0; y < size; y++, real_image_ptr++, imag_image_ptr++) {
+      *real_image_ptr /= factor, *imag_image_ptr /= factor;
     }
   }
 
