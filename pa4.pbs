@@ -11,3 +11,8 @@ make DEBUG=0
 ./ImageCleaner images/noisy_01.nsy
 ./ImageCleaner images/noisy_02.nsy
 ./ImageCleaner images/noisy_03.nsy
+
+make -f Competition.Makefile DEBUG=0
+./ImageCleaner images/noisy_03.nsy
+
+

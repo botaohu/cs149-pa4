@@ -27,6 +27,10 @@ It's the similar case for column-wise transformation.
 3. Prune 3/4 y-dimension calculation due to low-pass filter
 After calculating all 1-D FT of every rows, it is not necessary to compute FT of every columns, because low-pass filter will filter out the 3/4 of them. So we just compute FTs of the first 1/8 and last 1/8 columns. 
 
+[Resource Usage]
+All computations among rows / columns are parallel and does not share memory to access with write permission. 
+For row-wise transforms, in each FT, the thread will load the adjacent elements in the same row, which will boost the speed. 
+
 [Performance]
 
 noisy_01:
@@ -46,5 +50,5 @@ Speedup: 3870.1
 
 [Correctness]
 The result of CpuReference and our method are visually identical.
-The difference between the results are acceptable due to the error of the numerical calcluation. 
+The difference between the results are acceptable due to the error of the numerical calculation. 
 
